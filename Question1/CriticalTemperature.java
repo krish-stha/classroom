@@ -1,53 +1,53 @@
 package Question1;
 
 public class CriticalTemperature {
+
     /**
-     * Finds the minimum number of measurements required to determine the critical temperature.
+     * Determines the minimum number of measurements required to find the critical temperature.
      *
      * @param k The number of identical samples of the material.
      * @param n The number of temperature levels.
      * @return The minimum number of measurements required.
      */
-    public static int findMinMeasurements(int k, int n) {
-        // Create a 2D array to store the minimum number of measurements
+    public static int findCriticalTemperature(int k, int n) {
+        // dp[i][j] represents the maximum number of temperature levels
+        // we can check with 'i' samples and 'j' measurements.
         int[][] dp = new int[k + 1][n + 1];
         
-        // Initialize the base cases for 1 sample
-        for (int j = 1; j <= n; j++) {
-            dp[1][j] = j;
-        }
+        int attempts = 0;
         
-        // Fill the dp table
-        for (int i = 2; i <= k; i++) {
-            for (int j = 1; j <= n; j++) {
-                dp[i][j] = Integer.MAX_VALUE;
-                for (int x = 1; x <= j; x++) {
-                    int worst = Math.max(dp[i - 1][x - 1], dp[i][j - x]);
-                    dp[i][j] = Math.min(dp[i][j], 1 + worst);
-                }
+        // Keep increasing attempts until we can check all 'n' levels
+        while (dp[k][attempts] < n) {
+            attempts++;
+            for (int i = 1; i <= k; i++) {
+                // If we use a sample at this temperature and it breaks, we check below.
+                // If it doesn't break, we check above.
+                dp[i][attempts] = dp[i - 1][attempts - 1] + dp[i][attempts - 1] + 1;
             }
         }
         
-        return dp[k][n];
+        return attempts;
     }
 
     public static void main(String[] args) {
         // Test cases
-        testFindMinMeasurements(1, 2, 2);
-        testFindMinMeasurements(2, 6, 3);
-        testFindMinMeasurements(3, 14, 4);
-        testFindMinMeasurements(4, 20, 5);
+        testFindCriticalTemperature(1, 2, 2);
+        testFindCriticalTemperature(2, 6, 3);
+        testFindCriticalTemperature(3, 14, 4);
+        testFindCriticalTemperature(4, 20, 5);
+        testFindCriticalTemperature(2, 10, 4);
+        testFindCriticalTemperature(3, 25, 5);
     }
 
     /**
-     * Test method to validate the findMinMeasurements function.
+     * Test method to validate the findCriticalTemperature function.
      *
      * @param k The number of samples.
      * @param n The number of temperature levels.
      * @param expected The expected result.
      */
-    private static void testFindMinMeasurements(int k, int n, int expected) {
-        int result = findMinMeasurements(k, n);
+    private static void testFindCriticalTemperature(int k, int n, int expected) {
+        int result = findCriticalTemperature(k, n);
         System.out.printf("Test case: k=%d, n=%d\n", k, n);
         System.out.printf("Expected: %d, Actual: %d\n", expected, result);
         System.out.println(result == expected ? "PASSED" : "FAILED");
